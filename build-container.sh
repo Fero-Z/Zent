@@ -18,9 +18,11 @@ sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-c
 sudo chmod +x /usr/local/bin/docker-compose
 docker-compose --version
 
+sudo mkdir /datadrive/zent/lib/Zentd -p
+sudo mkdir /datadrive/zent/home/zentcash -p
+sudo mkdir /datadrive/zent/var/log/Zentd -p
 
-mkdir /datadrive/zent/lib/Zentd -p
 
-docker-compose up -d
+#docker-compose up -d
 
 #sudo docker build --rm -f "Dockerfile" -t zent-cash:latest "."
