@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  zent:
+    image: csanchom/zent-cash:latest
+    container_name: zentdaemon
+    ports:
+    - "21698:21698"
+    - "21688:21688"
+    volumes:
+      - /datadrive/zent/lib/Zentd:/var/lib/Zentd
+      - /datadrive/zent/home/zentcash:/home/zentcash
+      - /datadrive/zent/var/log/Zentd:/var/log/Zentd
+    restart: always
+    restart_policy:
+      condition: on-failure
+      delay: 5s
+      max_attempts: 3
