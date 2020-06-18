@@ -1,5 +1,5 @@
 // Copyright (c) 2018, The TurtleCoin Developers
-// 
+//
 // Please see the included LICENSE file for more information.
 
 ////////////////////////////
@@ -12,14 +12,15 @@
 #include <Common/StringTools.h>
 
 #include <CryptoNoteCore/CryptoNoteBasicImpl.h>
-#include <CryptoNoteCore/CryptoNoteTools.h>
-#include <CryptoNoteCore/TransactionExtra.h>
+#include <Common/CryptoNoteTools.h>
+#include <Common/TransactionExtra.h>
 
 #include <fstream>
 
 #include <iostream>
 
 #include <Utilities/ColouredMsg.h>
+#include <Utilities/Addresses.h>
 #include <zedwallet/PasswordContainer.h>
 #include <config/WalletConfig.h>
 
@@ -67,7 +68,7 @@ std::string formatDollars(const uint64_t amount)
     /* We want to format our number with comma separators so it's easier to
        use. Now, we could use the nice print_money() function to do this.
        However, whilst this initially looks pretty handy, if we have a locale
-       such as ja_JP.utf8, 1 TRTL will actually be formatted as 100 TRTL, which
+       such as ja_JP.utf8, 1 ZTC will actually be formatted as 100 TRTL, which
        is terrible, and could really screw over users.
 
        So, easy solution right? Just use en_US.utf8! Sure, it's not very
@@ -79,7 +80,7 @@ std::string formatDollars(const uint64_t amount)
        using the locale method, without writing a pretty long boiler plate
        function. So, instead, we define our own locale, which just returns
        the values we want.
-       
+
        It's less internationally friendly than we would potentially like
        but that would require a ton of scrutinization which if not done could
        land us with quite a few issues and rightfully angry users.
@@ -207,7 +208,7 @@ std::string createIntegratedAddress(const std::string &address,
     CryptoNote::AccountPublicAddress addr;
 
     /* Get the private + public key from the address */
-    CryptoNote::parseAccountAddressString(prefix, addr, address);
+    Utilities::parseAccountAddressString(prefix, addr, address);
 
     /* Pack as a binary array */
     CryptoNote::BinaryArray ba;
@@ -315,7 +316,7 @@ bool shutdown(std::shared_ptr<WalletInfo> walletInfo, CryptoNote::INode &node,
 {
     if (alreadyShuttingDown)
     {
-        std::cout << "Patience little turtle, we're already shutting down!" 
+        std::cout << "Patience little turtle, we're already shutting down!"
                   << std::endl;
 
         return false;
@@ -372,7 +373,7 @@ bool shutdown(std::shared_ptr<WalletInfo> walletInfo, CryptoNote::INode &node,
     timelyShutdown.join();
 
     std::cout << "Bye." << std::endl;
-    
+
     return true;
 }
 

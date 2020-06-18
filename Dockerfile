@@ -48,8 +48,10 @@ COPY --from=builder /opt/Zent/build/src/miner .
 COPY --from=builder /opt/Zent/build/src/wallet-api .
 COPY --from=builder /opt/Zent/build/src/cryptotest .
 COPY --from=builder /opt/Zent/build/src/zentwallet-beta .
+COPY ./configs/service/config.json /var/lib/zentd/
+
 RUN mkdir -p /var/lib/zentd
 WORKDIR /var/lib/zentd
 ADD https://github.com/ZentCashFoundation/checkpoints/raw/master/checkpoints.csv /var/lib/zentd
-ENTRYPOINT ["/usr/local/bin/Zentd"]
-CMD ["--no-console","--data-dir","/var/lib/Zentd","--rpc-bind-ip","0.0.0.0","--rpc-bind-port","21698","--p2p-bind-port","21688","--enable-cors=*","--enable-blockexplorer","--load-checkpoints","/var/lib/zentd/checkpoints.csv"]
+# ENTRYPOINT ["/usr/local/bin/Zentd"]
+# CMD ["--no-console","--data-dir","/var/lib/Zentd","--rpc-bind-ip","0.0.0.0","--rpc-bind-port","21698","--p2p-bind-port","21688","--enable-cors=*","--enable-blockexplorer","--load-checkpoints","/var/lib/zentd/checkpoints.csv"]

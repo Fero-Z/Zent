@@ -1,5 +1,5 @@
 // Copyright (c) 2018, The TurtleCoin Developers
-// 
+//
 // Please see the included LICENSE file for more information.
 
 ///////////////////////////////
@@ -12,8 +12,8 @@
 #include <config/CryptoNoteConfig.h>
 
 #include <CryptoNoteCore/CryptoNoteBasicImpl.h>
-#include <CryptoNoteCore/CryptoNoteTools.h>
-#include <CryptoNoteCore/TransactionExtra.h>
+#include <Common/CryptoNoteTools.h>
+#include <Common/TransactionExtra.h>
 
 #include "IWallet.h"
 
@@ -28,6 +28,8 @@
 
 #include <Wallet/WalletGreen.h>
 #include <Wallet/WalletUtils.h>
+
+#include <Utilities/Addresses.h>
 
 bool parseAmount(std::string strAmount, uint64_t &amount)
 {
@@ -116,7 +118,7 @@ bool confirmTransaction(CryptoNote::TransactionParameters t,
     {
         std::cout << ".";
     }
-    
+
     std::cout << std::endl << std::endl
               << "FROM: " << SuccessMsg(walletInfo->walletFileName)
               << std::endl
@@ -133,12 +135,12 @@ bool confirmTransaction(CryptoNote::TransactionParameters t,
 
 /* Note that the originalTXParams, and thus the splitTXParams already has the
    node transfer added */
-void splitTX(CryptoNote::WalletGreen &wallet, 
+void splitTX(CryptoNote::WalletGreen &wallet,
              const CryptoNote::TransactionParameters originalTXParams,
              uint32_t nodeFee)
 {
     std::cout << "Transaction is still too large to send, splitting into "
-              << "multiple chunks." 
+              << "multiple chunks."
               << std::endl
               << "It will slightly raise the fee you have to pay,"
               << std::endl
@@ -184,7 +186,7 @@ void splitTX(CryptoNote::WalletGreen &wallet,
         {
             splitTXParams.destinations[0].amount = remainder;
         }
-        else if (splitTXParams.destinations[0].amount + splitTXParams.fee 
+        else if (splitTXParams.destinations[0].amount + splitTXParams.fee
                                                       + nodeFee > balance)
         {
             splitTXParams.destinations[0].amount = balance - splitTXParams.fee
@@ -289,7 +291,7 @@ void transfer(std::shared_ptr<WalletInfo> walletInfo, uint32_t height,
     const uint64_t balance = walletInfo->wallet.getActualBalance();
 
     const uint64_t balanceNoDust = walletInfo->wallet.getBalanceMinusDust({});
-    
+
     const auto maybeAddress = getAddress("What address do you want to transfer"
                                          " to?: ");
 
@@ -442,7 +444,7 @@ void transfer(std::shared_ptr<WalletInfo> walletInfo, uint32_t height,
             amount = balance - fee - nodeFee;
         }
     }
-    
+
     doTransfer(address, amount, fee, extra, walletInfo, height,
                integratedAddress, mixin, nodeAddress, nodeFee,
                originalAddress);
@@ -541,7 +543,7 @@ void doTransfer(std::string address, uint64_t amount, uint64_t fee,
     {
         {address, amount}
     };
-    
+
     if (!nodeAddress.empty() && nodeFee != 0)
     {
         p.destinations.push_back({nodeAddress, nodeFee});
@@ -562,7 +564,7 @@ void doTransfer(std::string address, uint64_t amount, uint64_t fee,
     sendTX(walletInfo, p, height, false, nodeFee);
 }
 
-void sendTX(std::shared_ptr<WalletInfo> walletInfo, 
+void sendTX(std::shared_ptr<WalletInfo> walletInfo,
             CryptoNote::TransactionParameters p, uint32_t height,
             bool retried, uint32_t nodeFee)
 {
@@ -583,7 +585,7 @@ void sendTX(std::shared_ptr<WalletInfo> walletInfo,
             /* Reform with the optimized inputs */
             tx = walletInfo->wallet.formTransaction(p);
 
-            /* If the transaction is still too large, lets split it up into 
+            /* If the transaction is still too large, lets split it up into
                smaller chunks */
             if (walletInfo->wallet.txIsTooLarge(tx))
             {
@@ -594,7 +596,7 @@ void sendTX(std::shared_ptr<WalletInfo> walletInfo,
 
         const size_t id = walletInfo->wallet.transfer(tx);
         auto hash = walletInfo->wallet.getTransaction(id).hash;
-        
+
         std::cout << SuccessMsg("Transaction has been sent!")
                   << std::endl
                   << SuccessMsg("Hash: ")
@@ -639,7 +641,7 @@ bool handleTransferError(const std::system_error &e,
         case CryptoNote::error::MIXIN_COUNT_TOO_BIG:
         case CryptoNote::NodeError::INTERNAL_NODE_ERROR:
         {
-    
+
             if (wrongAmount)
             {
                 std::cout << WarningMsg("Failed to send transaction "
@@ -819,7 +821,7 @@ Maybe<uint64_t> getFee()
     while (true)
     {
         std::string stringAmount;
-        std::cout << std::endl 
+        std::cout << std::endl
                   << InformationMsg("What fee do you want to use?")
                   << std::endl
                   << "Hit enter for the default fee of "
@@ -945,14 +947,14 @@ Maybe<std::pair<std::string, std::string>> extractIntegratedAddress(
 
     /* Parse the AccountPublicAddress into a standard wallet address */
     /* Use the calculated prefix from earlier for less typing :p */
-    std::string address = CryptoNote::getAccountAddressAsStr(prefix, addr);
+    std::string address = Utilities::getAccountAddressAsStr(prefix, addr);
 
     /* The address out should of course be a valid address */
     if (!parseStandardAddress(address))
     {
         return Nothing<std::pair<std::string, std::string>>();
     }
-    
+
     std::vector<uint8_t> extra;
 
     /* And the payment ID out should be valid as well! */
@@ -960,7 +962,7 @@ Maybe<std::pair<std::string, std::string>> extractIntegratedAddress(
     {
         return Nothing<std::pair<std::string, std::string>>();
     }
-    
+
     return Just<std::pair<std::string, std::string>>({address, paymentID});
 }
 
@@ -1049,7 +1051,7 @@ bool parseStandardAddress(std::string address, bool printErrors)
 
     CryptoNote::AccountPublicAddress addr;
 
-    const bool valid = CryptoNote::parseAccountAddressString(prefix, addr,
+    const bool valid = Utilities::parseAccountAddressString(prefix, addr,
                                                              address);
 
     if (address.length() != WalletConfig::standardAddressLength)
@@ -1066,9 +1068,9 @@ bool parseStandardAddress(std::string address, bool printErrors)
     }
     /* We can't get the actual prefix if the address is invalid for other
        reasons. To work around this, we can just check that the address starts
-       with TRTL, as long as the prefix is the TRTL prefix. This keeps it
+       with ZTC, as long as the prefix is the TRTL prefix. This keeps it
        working on testnets with different prefixes. */
-    else if (address.substr(0, WalletConfig::addressPrefix.length()) 
+    else if (address.substr(0, WalletConfig::addressPrefix.length())
           != WalletConfig::addressPrefix)
     {
         if (printErrors)

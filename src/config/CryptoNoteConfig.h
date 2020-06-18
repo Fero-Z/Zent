@@ -1,7 +1,7 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
 // Copyright (c) 2014-2018, The Monero Project
-// Copyright (c) 2018, The TurtleCoin Developers
-// Copyright (c) 2019, The Zent Cash Project
+// Copyright (c) 2018-2019, The TurtleCoin Developers
+// Copyright (c) 2019-2020, The Zent Cash Developers
 //
 // Please see the included LICENSE file for more information.
 
@@ -41,8 +41,6 @@ const uint64_t LWMA_2_DIFFICULTY_BLOCK_INDEX                 = 1;
 const uint64_t LWMA_2_DIFFICULTY_BLOCK_INDEX_V2              = 2;
 const uint64_t LWMA_2_DIFFICULTY_BLOCK_INDEX_V3              = 3;
 
-const uint64_t LWMA_3_DIFFICULTY_BLOCK_INDEX                 = 2000000;
-
 const unsigned EMISSION_SPEED_FACTOR                         = 21;
 static_assert(EMISSION_SPEED_FACTOR <= 8 * sizeof(uint64_t), "Bad EMISSION_SPEED_FACTOR");
 
@@ -60,7 +58,7 @@ const uint64_t GENESIS_BLOCK_REWARD                          = UINT64_C(30000000
 --print-genesis-tx --genesis-block-reward-address <premine wallet address>
 
 For example:
-TurtleCoind --print-genesis-tx --genesis-block-reward-address TRTLv2Fyavy8CXG8BPEbNeCHFZ1fuDCYCZ3vW5H5LXN4K2M2MHUpTENip9bbavpHvvPwb4NDkBWrNgURAd5DB38FHXWZyoBh4wW
+Zentd --print-genesis-tx --genesis-block-reward-address ZeLv2Fyavy8CXG8BPEbNeCHFZ1fuDCYCZ3vW5H5LXN4K2M2MHUpTENip9bbavpHvvPwb4NDkBWrNgURAd5DB38FHXWZyoBh4wW
 
 * Take the hash printed, and replace it with the hash below in GENESIS_COINBASE_TX_HEX
 
@@ -69,11 +67,11 @@ TurtleCoind --print-genesis-tx --genesis-block-reward-address TRTLv2Fyavy8CXG8BP
 * You should see your premine appear in the previously generated wallet.
 
 */
-const char GENESIS_COINBASE_TX_HEX[] = "010a01ff000180d88ee16f02f17fd6187a65a5844ec8fc5aa30e088aebb13951cbb6710c1aafd662353bbd4221013f233d1b74de62b435533d6e28c374f0f8568c5c25fd1130eceeb639133dbd19";
+const char     GENESIS_COINBASE_TX_HEX[]                     = "010a01ff000180d88ee16f02f17fd6187a65a5844ec8fc5aa30e088aebb13951cbb6710c1aafd662353bbd4221013f233d1b74de62b435533d6e28c374f0f8568c5c25fd1130eceeb639133dbd19";
 static_assert(sizeof(GENESIS_COINBASE_TX_HEX)/sizeof(*GENESIS_COINBASE_TX_HEX) != 1, "GENESIS_COINBASE_TX_HEX must not be empty.");
 
 /* This is the unix timestamp of the first "mined" block (technically block 2, not the genesis block)
-   You can get this value by doing "print_block 2" in Zentd. It is used to know what timestamp
+   You can get this value by doing "print_block 2" in TurtleCoind. It is used to know what timestamp
    to import from when the block height cannot be found in the node or the node is offline. */
 const uint64_t GENESIS_BLOCK_TIMESTAMP                       = 1512800692;
 
@@ -103,7 +101,7 @@ const uint32_t MIXIN_LIMITS_V1_HEIGHT                        = 0;
 const uint32_t MIXIN_LIMITS_V2_HEIGHT                        = 11000;
 const uint32_t MIXIN_LIMITS_V3_HEIGHT                        = 150000;
 
-/* The mixin to use by default with zedwallet and turtle-service */
+/* The mixin to use by default with zentwallet and zent-service */
 /* DEFAULT_MIXIN_V0 is the mixin used before MIXIN_LIMITS_V1_HEIGHT is started */
 const uint64_t DEFAULT_MIXIN_V0                              = 0;
 const uint64_t DEFAULT_MIXIN_V1                              = MAXIMUM_MIXIN_V1;
@@ -135,7 +133,19 @@ const size_t   MAX_BLOCK_SIZE_INITIAL                        = 100000;
 const uint64_t MAX_BLOCK_SIZE_GROWTH_SPEED_NUMERATOR         = 100 * 1024;
 const uint64_t MAX_BLOCK_SIZE_GROWTH_SPEED_DENOMINATOR       = 365 * 24 * 60 * 60 / DIFFICULTY_TARGET;
 const uint64_t MAX_EXTRA_SIZE                                = 140000;
+const uint64_t MAX_EXTRA_SIZE_V2                             = 1024;
+const uint64_t MAX_EXTRA_SIZE_V2_HEIGHT                      = 1300000;
 
+/* For new projects forked from this code base, the values immediately below
+   should be changed to 0 to prevent issues with transaction processing 
+   and other possible unexpected behavior */
+const uint64_t TRANSACTION_SIGNATURE_COUNT_VALIDATION_HEIGHT = 1400000;
+const uint64_t BLOCK_BLOB_SHUFFLE_CHECK_HEIGHT               = 1600000;
+const uint64_t TRANSACTION_INPUT_BLOCKTIME_VALIDATION_HEIGHT = 1600000;
+
+/* This describes how many blocks of "wiggle" room transactions have regarding
+   when the outputs can be spent based on a reasonable belief that the outputs
+   would unlock in the current block period */
 const uint64_t CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_BLOCKS     = 1;
 const uint64_t CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_SECONDS    = DIFFICULTY_TARGET * CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_BLOCKS;
 
@@ -146,8 +156,6 @@ const uint64_t CRYPTONOTE_NUMBER_OF_PERIODS_TO_FORGET_TX_DELETED_FROM_POOL = 7; 
 const size_t   FUSION_TX_MAX_SIZE                            = CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_CURRENT * 30 / 100;
 const size_t   FUSION_TX_MIN_INPUT_COUNT                     = 12;
 const size_t   FUSION_TX_MIN_IN_OUT_COUNT_RATIO              = 4;
-
-const uint32_t KEY_IMAGE_CHECKING_BLOCK_INDEX                = 0;
 
 const uint32_t UPGRADE_HEIGHT_V2                             = 1;
 const uint32_t UPGRADE_HEIGHT_V3                             = 2;
@@ -164,13 +172,25 @@ static_assert(UPGRADE_VOTING_WINDOW > 1, "Bad UPGRADE_VOTING_WINDOW");
 /* Block heights we are going to have hard forks at */
 const uint64_t FORK_HEIGHTS[] =
 {
-    3,  // 0
-    450000,  // 1
+    0,        //  0 -  Zawy Difficulty Block Index, Mixin Limits V1 Height
+    1,        //  1 -  Upgrade Height V2 CN-Classic, Lwma 2 Difficulty Block Index
+    2,        //  2 -  Upgrade Height V3 CN-Classic, Lwma 2 Difficulty Block Index V2, Zawy Difficulty V2
+    3,        //  3 -  Upgrade Height V4 CN-Lite, Lwma 2 Difficulty Block Index V3
+    11000,    //  4 -  Mixin Limits Height V2
+    150000,   //  5 -  Mixin Limits Height V3
+    450000,   //  6 -  Upgrade Height V5 CN-Turtle
+    800000,   //  7 -  Fusion Dust Threshold V2 Height
+    1000000,  //  8 -  Free Space
+    1300000,  //  9 -  Max Extra Size V2 Height
+    1400000,  //  10 - Transation Signature Count Validation Height
+    1600000,  //  11 - Block Blob Shuffle Check Height, Transaction Input Blocktime Validation Height
+    1800000,  //  12 - Free Space
+    2000000,  //  13 - Free Space
 
 };
 
 /* MAKE SURE TO UPDATE THIS VALUE WITH EVERY MAJOR RELEASE BEFORE A FORK */
-const uint64_t SOFTWARE_SUPPORTED_FORK_INDEX                 = 0;
+const uint64_t SOFTWARE_SUPPORTED_FORK_INDEX                 = 7;
 
 const uint64_t FORK_HEIGHTS_SIZE = sizeof(FORK_HEIGHTS) / sizeof(*FORK_HEIGHTS);
 
@@ -209,7 +229,7 @@ const uint8_t  BLOCK_MINOR_VERSION_0                         =  0;
 const uint8_t  BLOCK_MINOR_VERSION_1                         =  1;
 
 const size_t   BLOCKS_IDS_SYNCHRONIZING_DEFAULT_COUNT        =  10000;  //by default, blocks ids count in synchronizing
-const size_t   BLOCKS_SYNCHRONIZING_DEFAULT_COUNT            =  100;    //by default, blocks count in blocks downloading
+const uint64_t BLOCKS_SYNCHRONIZING_DEFAULT_COUNT            =  100;    //by default, blocks count in blocks downloading
 const size_t   COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT         =  1000;
 
 const int      P2P_DEFAULT_PORT                              =  21688;
@@ -221,8 +241,8 @@ const size_t   P2P_LOCAL_GRAY_PEERLIST_LIMIT                 =  5000;
 
 // P2P Network Configuration Section - This defines our current P2P network version
 // and the minimum version for communication between nodes
-const uint8_t  P2P_CURRENT_VERSION                           = 4;
-const uint8_t  P2P_MINIMUM_VERSION                           = 3;
+const uint8_t  P2P_CURRENT_VERSION                           = 5;
+const uint8_t  P2P_MINIMUM_VERSION                           = 4;
 
 // This defines the minimum P2P version required for lite blocks propogation
 const uint8_t P2P_LITE_BLOCKS_PROPOGATION_VERSION            = 4;
@@ -248,16 +268,16 @@ const uint64_t DATABASE_READ_BUFFER_MB_DEFAULT_SIZE          = 10;
 const uint32_t DATABASE_DEFAULT_MAX_OPEN_FILES               = 100;
 const uint16_t DATABASE_DEFAULT_BACKGROUND_THREADS_COUNT     = 2;
 
-const char     LATEST_VERSION_URL[]                          = "http://zent.cash";
-const std::string LICENSE_URL                                = "https://github.com/zentcash/zent/";
+const char     LATEST_VERSION_URL[]                          = "http://latest.zent.cash";
+const std::string LICENSE_URL                                = "https://github.com/ZentCash/Zent/blob/master/LICENSE";
+const std::string LICENSE_URL_FOUNDATION                     = "https://github.com/ZentCashFoundation/Zent/blob/master/LICENSE";
 const static   boost::uuids::uuid CRYPTONOTE_NETWORK         =
 {
     {  0xc6, 0x1c, 0x4d, 0x6c, 0xcc, 0x12, 0x42, 0x9c, 0x33, 0xd6, 0x35, 0xa5, 0xee, 0xc1, 0x43, 0xd8  }
 };
 
 const char* const SEED_NODES[] = {
-  "95.216.169.11:21688", //rock
-  "95.216.191.56:21688", //cision
-
+  "95.216.169.11:21688", // seedpro1.zent.cash
+  "95.216.191.56:21688", // seedpro2.zent.cash
 };
 } // CryptoNote

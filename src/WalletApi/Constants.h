@@ -1,5 +1,5 @@
 // Copyright (c) 2018, The TurtleCoin Developers
-// 
+//
 // Please see the included LICENSE file for more information.
 
 #pragma once
@@ -13,12 +13,12 @@ namespace ApiConstants
     const uint64_t PBKDF2_ITERATIONS = 10000;
 
     /* The length of the address after removing the prefix */
-    const uint16_t addressBodyLength = WalletConfig::standardAddressLength 
+    const uint16_t addressBodyLength = WalletConfig::standardAddressLength
                                      - WalletConfig::addressPrefix.length();
 
-    /* This is the equivalent of TRTL[a-zA-Z0-9]{95} but working for all coins */
+    /* This is the equivalent of Ze[a-zA-Z0-9]{95} but working for all coins */
     const std::string addressRegex
-        = std::string(WalletConfig::addressPrefix) + "[a-zA-Z0-9]{" 
+        = std::string(WalletConfig::addressPrefix) + "[a-zA-Z0-9]{"
         + std::to_string(addressBodyLength) + "}";
 
     /* 64 char, hex */

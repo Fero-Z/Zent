@@ -1,18 +1,46 @@
 version: "3"
 
+# DAEMON
 services:
   zent:
     image: csanchom/zent-cash:latest
     container_name: zentdaemon
     ports:
     - "21698:21698"
-    - "21688:21688"
     volumes:
       - /datadrive/zent/lib/Zentd:/var/lib/Zentd
       - /datadrive/zent/home/zentcash:/home/zentcash
       - /datadrive/zent/var/log/Zentd:/var/log/Zentd
     restart: always
-    restart_policy:
-      condition: on-failure
-      delay: 5s
-      max_attempts: 3
+    
+
+# Wallet API
+  zentservice:
+    image: csanchom/zent-cash:latest
+    container_name: zent-service
+    ports:
+    - "21688:21688"
+    volumes:
+      - /datadrive/configs/zent-service/:/var/lib/zentd/
+    depends_on:
+      - zent
+    restart: always
+    command: Zent-service --config-file /var/lib/zentd/config.json
+
+# Wallet API
+  walletapi:
+    image: csanchom/zent-cash:latest
+    container_name: wallet-api
+    ports:
+    - "21699:21699"
+    volumes:
+      - /datadrive/configs/zent-service/:/var/lib/zentd/
+      - /datadrive/zent/lib/Zentd:/var/lib/Zentd
+      - /datadrive/zent/home/zentcash:/home/zentcash
+      - /datadrive/zent/var/log/Zentd:/var/log/Zentd
+    depends_on:
+      - zent
+    restart: always
+    links:
+      - zent
+    command: wallet-api -p 21699 --rpc-bind-ip 0.0.0.0 --enable-cors * -r <password>

@@ -70,8 +70,8 @@ function generate_tarball()
     echo "generating tarball $TARBALL .."
     tar --transform "s,^,$RELEASE_NAME/," -c -f $TARBALL -z -C "$CLONE_DIR/build/release/src" \
         miner \
-        zedwallet \
-        TurtleCoind \
+        zentwallet \
+        Zend \
         walletd
 
     generate_checksums $TARBALL
@@ -125,4 +125,3 @@ checkout_tag
 build_static_linked_version
 build_dynamic_linked_version
 cleanup
-
