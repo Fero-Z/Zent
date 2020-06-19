@@ -3,20 +3,21 @@ version: "3"
 # DAEMON
 services:
   zent:
-    image: csanchom/zent-cash:latest
+    image: csanchom/zent:latest
     container_name: zentdaemon
     ports:
     - "21698:21698"
+    - "21699:21699"
     volumes:
       - /datadrive/zent/lib/Zentd:/var/lib/Zentd
       - /datadrive/zent/home/zentcash:/home/zentcash
       - /datadrive/zent/var/log/Zentd:/var/log/Zentd
     restart: always
+    command: Zentd --no-console --data-dir /var/lib/Zentd --rpc-bind-ip 0.0.0.0 --rpc-bind-port 21698 --p2p-bind-port 21688 --enable-cors=* --enable-blockexplorer --load-checkpoints /var/lib/zentd/checkpoints.csv
     
-
 # Wallet API
   zentservice:
-    image: csanchom/zent-cash:latest
+    image: csanchom/zent:latest
     container_name: zent-service
     ports:
     - "21688:21688"
@@ -25,22 +26,4 @@ services:
     depends_on:
       - zent
     restart: always
-    command: Zent-service --config-file /var/lib/zentd/config.json
-
-# Wallet API
-  walletapi:
-    image: csanchom/zent-cash:latest
-    container_name: wallet-api
-    ports:
-    - "21699:21699"
-    volumes:
-      - /datadrive/configs/zent-service/:/var/lib/zentd/
-      - /datadrive/zent/lib/Zentd:/var/lib/Zentd
-      - /datadrive/zent/home/zentcash:/home/zentcash
-      - /datadrive/zent/var/log/Zentd:/var/log/Zentd
-    depends_on:
-      - zent
-    restart: always
-    links:
-      - zent
-    command: wallet-api -p 21699 --rpc-bind-ip 0.0.0.0 --enable-cors * -r <password>
+    command: Zent-service --bind-address 127.0.0.1 --bind-port 21699 --daemon-address 127.0.0.1 --daemon-port 21698 --enable-cors=* --log-file service.log --log-level 3 --rpc-legacy-security false -w pool-wallet -p <PASSWORD>

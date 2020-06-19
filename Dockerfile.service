@@ -53,5 +53,5 @@ COPY ./configs/service/config.json /var/lib/zentd/
 RUN mkdir -p /var/lib/zentd
 WORKDIR /var/lib/zentd
 ADD https://github.com/Zentcash/checkpoints/raw/master/checkpoints.csv /var/lib/zentd
-# ENTRYPOINT ["/usr/local/bin/Zentd"]
-# CMD ["--no-console","--data-dir","/var/lib/Zentd","--rpc-bind-ip","0.0.0.0","--rpc-bind-port","21698","--p2p-bind-port","21688","--enable-cors=*","--enable-blockexplorer","--load-checkpoints","/var/lib/zentd/checkpoints.csv"]
+ENTRYPOINT ["/usr/local/bin/Zent-service"]
+CMD ["--bind-address","127.0.0.1","--bind-port","21699","--daemon-address","127.0.0.1","--daemon-port","21698","--enable-cors=*","--log-file","service.log","--log-level","3","--rpc-legacy-security","false"]
